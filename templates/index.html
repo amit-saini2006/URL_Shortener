@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
+
+    <div class="max-w-3xl mx-auto mt-10 bg-white shadow-lg rounded-xl p-8">
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">🔗 URL Shortener</h1>
+
+        <!-- Form -->
+        <form action="/" method="POST" class="flex flex-col sm:flex-row gap-4 mb-8">
+            <input 
+                type="url" 
+                name="url" 
+                placeholder="Enter your long URL here..." 
+                required
+                class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+            <button 
+                type="submit" 
+                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all"
+            >
+                Shorten
+            </button>
+        </form>
+
+        <!-- Table -->
+        {% if all_urls %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                <thead>
+                    <tr class="bg-gray-200 text-left">
+                        <th class="py-3 px-4 border-b">Original URL</th>
+                        <th class="py-3 px-4 border-b">Short URL</th>
+                        <th class="py-3 px-4 border-b text-center">Visits</th>
+                        <th class="py-3 px-4 border-b text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for url in all_urls %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-2 px-4 border-b truncate max-w-[200px]">
+                            <a href="{{ url[0] }}" target="_blank" class="text-blue-600 underline">
+                                {{ url[0] }}
+                            </a>
+                        </td>
+                        <td class="py-2 px-4 border-b">
+                            <div class="flex items-center gap-2">
+                                <a href="/{{ url[1] }}" target="_blank" class="text-blue-500 hover:underline">
+                                    {{ request.host_url }}{{ url[1] }}
+                                </a>
+                                <!-- Copy Button -->
+                                <button 
+                                    onclick="copyToClipboard('{{ request.host_url }}{{ url[1] }}', this)"
+                                    class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs text-gray-700"
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </td>
+                        <td class="py-2 px-4 border-b text-center">{{ url[2] }}</td>
+                        <td class="py-2 px-4 border-b text-center">
+                            <form action="/delete/{{ url[1] }}" method="POST" onsubmit="return confirm('Delete this short link?');">
+                                <button class="text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-gray-500 mt-6">No URLs added yet. Try shortening one!</p>
+        {% endif %}
+    </div>
+
+    <footer class="text-center mt-10 text-sm text-gray-600">
+        Made with ❤️ using Flask & TailwindCSS
+    </footer>
+
+    <!-- JavaScript for Copy -->
+    <script>
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Change button text temporarily
+                const original = button.innerText;
+                button.innerText = "Copied!";
+                button.classList.add("bg-green-200", "text-green-800");
+                setTimeout(() => {
+                    button.innerText = original;
+                    button.classList.remove("bg-green-200", "text-green-800");
+                }, 1000);
+            });
+        }
+    </script>
+
+</body>
+</html>
